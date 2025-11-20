@@ -1,14 +1,19 @@
-<<<<<<< HEAD
-Tool accepts:
---file <path-to-log>
---keywords <comma-separated-list>
---alert-mode <print|write>
---output <path-to-output-file>   (only required when alert-mode = write)
 
-Example usage.
-python monitor.py --file /var/log/auth.log --keywords error,login,failed --alert-mode print
-python monitor.py --file security.log --keywords malware,hack --alert-mode write --output alerts.txt
+# LogSentinel
 
-=======
-# SIEM-portfolio
->>>>>>> 732f5cd6ecdaa82a987d7f8ec73fb3ad76e8e4e0
+Log tool.
+
+## Usage Examples
+python3 sentinel.py -f file.txt -k keywords,separated,by,comma -o output_file.txt
+
+## Purpose of LogSentinel
+This tool is intended for a SIEM-context. Perhaps you need to analyze a big log file for specific keywords. 
+- Do you suspect a breach?
+- Have you confirmed a breach? 
+- Do you suspect an intruder might have gained access to your system(s)?
+
+This tool is primarily intended to for incident response and helps in locating the bread crumbs quickly.
+
+## Author
+Idris Isci
+

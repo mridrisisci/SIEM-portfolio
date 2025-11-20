@@ -1,5 +1,13 @@
 import argparse
 
+'''
+Title: LogSentinel
+Description:
+Purpose:
+Usage: 
+Author: Idris Isci
+
+'''
 def parse_args():
     parser = argparse.ArgumentParser(description="real time log monitoring")
 
@@ -46,7 +54,7 @@ def monitor_file(args):
             if (any(k.strip() in line for k in keywords)):
                 msg = f"Line: {line_number} : line {line}"
                 print(msg)
-                generic_list.append(msg, "\n")
+                generic_list.append(msg)
     except FileNotFoundError:
         print(f"ERROR: File {args.file} not found")
     except Exception as e:
@@ -54,8 +62,7 @@ def monitor_file(args):
     return generic_list
 
 def save_to_file(args, generic_list):
-    with open(args.output, 'x') as file:
-        file.write(generic_list)
+    args.output.write(str(generic_list))
 
 def close_file(args):
     try:
@@ -72,8 +79,12 @@ def close_file(args):
 
 def main():
     args = parse_args()
-    
+    generic_list = monitor_file(args)
+
+
     monitor_file(args)
+    if args.output:
+        save_to_file(args, generic_list)
     close_file(args)
 
 if __name__ == '__main__':
