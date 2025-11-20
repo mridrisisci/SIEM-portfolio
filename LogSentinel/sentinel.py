@@ -1,5 +1,5 @@
 import argparse
-
+import time 
 '''
 Title: LogSentinel
 Description:
@@ -21,9 +21,6 @@ def parse_args():
                         metavar="", 
                         required=True,
                         help="provide the keywords the tool must search to monitor for")
-    parser.add_argument("--alert-mode", 
-                        metavar="", 
-                        help="")
     parser.add_argument("-o", 
                         "--output", 
                         type=argparse.FileType('w'), 
@@ -31,12 +28,23 @@ def parse_args():
                         help="Write to file")
     parser.add_argument("-m",
                         "--mode", 
-                        choices={"print", "live"},
-                        help="run the tool in live mode to monitor real time or " \
-                        "use the print mode")
+                        choices={"print", "live", "file"},
+                        help="",
+                        default="file")
     
 
     return parser.parse_args()
+
+def alert_mode(args):
+    
+    try:
+        if args.mode == "print":
+            print("Starting Sentinel in print mode....")
+            time.sleep(2)
+
+
+    except Exception as e:
+        print(f"ERROR: {e}")
 
 
 def monitor_file(args):
@@ -82,6 +90,8 @@ def main():
     generic_list = monitor_file(args)
 
 
+    if args.mode:
+        alert_mode(args)
     monitor_file(args)
     if args.output:
         save_to_file(args, generic_list)
