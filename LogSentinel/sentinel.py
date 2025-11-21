@@ -35,17 +35,17 @@ def parse_args():
 
     return parser.parse_args()
 
-def alert_mode(args):
+def start_sentinel(args):
     try:
           match args.mode:
-                case args.print:
+                case "print":
                     sentinel_print_mode()
                     print("STARTING: Running Sentinel in PRINT mode....")
                     time.sleep(2)
-                case (args.live):
+                case "live":
                     sentinel_live_mode()
-                case (args.file):
-                    sentinel_file_mode()
+                case "file":
+                    sentinel_file_mode(args)
     except Exception as e:
         print(f"ERROR: {e}")
     if args.mode == None:
@@ -63,6 +63,7 @@ def sentinel_file_mode(args):
     keyword_list = read_log_file(args)
     save_to_file(args, keyword_list)
     close_file(args)
+    print("Log file has been created and is ready for analysis.")
     return keyword_list
 
 
@@ -80,7 +81,6 @@ def read_log_file(args):
         for line_number, line in enumerate(lines, 1):
             if (any(k.strip() in line for k in keywords)):
                 msg = f"Line: {line_number} : line {line}"
-                print(msg) ## remove at some point 
                 keyword_list.append(msg)
     except FileNotFoundError:
         print(f"ERROR: File {args.file} not found")
@@ -89,7 +89,11 @@ def read_log_file(args):
     return keyword_list
 
 def save_to_file(args, generic_list):
-    args.output.write(str(generic_list))
+    try:
+        content = '\n'.join(generic_list)
+        args.output.write(content)
+    except Exception as e:
+        print(f"ERROR: {e}")
 
 def close_file(args):
     try:
@@ -99,15 +103,14 @@ def close_file(args):
     if getattr(args, "output", None):
         try:
             args.output.close()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"ERROR: {e}")
 
     
 
 def main():
     args = parse_args() ## parses args 
-    alert_mode(args) ## checks mode 
-    #keyword_list = read_log_file(args) ## retrieves list of keywords 
+    start_sentinel(args) ## checks mode 
     
 
 if __name__ == '__main__':
