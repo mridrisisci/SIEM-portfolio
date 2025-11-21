@@ -1,5 +1,8 @@
 import argparse
-import time 
+import time
+import logging 
+logger = logging.getLogger(__name__)
+
 '''
 Title: LogSentinel
 Description:
@@ -107,10 +110,21 @@ def close_file(args):
             print(f"ERROR: {e}")
 
     
+def make_log():
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, f"sentinel_(datetime.now().strftime('%Y%m%d')).log")
+
+    from logging.handlers import RotatingFileHandler
+    handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
 
 def main():
     args = parse_args() ## parses args 
     start_sentinel(args) ## checks mode 
+    make_log()
+    logging.basicConfig(filename="", level=logging.INFO)
+    logger.info("Started Sentinel.")
+    logger.info("Shutting Sentinel.")
     
 
 if __name__ == '__main__':
