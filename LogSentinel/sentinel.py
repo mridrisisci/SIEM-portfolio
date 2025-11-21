@@ -1,8 +1,9 @@
 import argparse
 import time
+from datetime import datetime
 import logging 
-logger = logging.getLogger(__name__)
-
+from logging.handlers import RotatingFileHandler
+import os
 '''
 Title: LogSentinel
 Description:
@@ -51,8 +52,6 @@ def start_sentinel(args):
                     sentinel_file_mode(args)
     except Exception as e:
         print(f"ERROR: {e}")
-    if args.mode == None:
-        sentinel_file_mode()
 
 def sentinel_print_mode(args):
     pass   
@@ -110,21 +109,40 @@ def close_file(args):
             print(f"ERROR: {e}")
 
     
-def make_log():
+def make_log_file():
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"sentinel_(datetime.now().strftime('%Y%m%d')).log")
+    log_file = os.path.join(log_dir, f"sentinel_{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}.log")
 
-    from logging.handlers import RotatingFileHandler
     handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
+
+    # console handling
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+    logger.addHandler(console_handler)
+    return logger
+
+def make_log_stream():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    stream_handler = logging.StreamHandler()
+    formatter = logging.formatter("%{levelname}s:%{name}s:%{message}s")
+    stream_handler.setFormatter(formattter)
+    logger.addHandler(stream_handler)
 
 def main():
     args = parse_args() ## parses args 
+    file_logger = make_log_file()
+    stream_logger = stream_logger()
+    file_logger.info("Started Sentinel.")
     start_sentinel(args) ## checks mode 
-    make_log()
-    logging.basicConfig(filename="", level=logging.INFO)
-    logger.info("Started Sentinel.")
-    logger.info("Shutting Sentinel.")
+    file_logger.info("Shutting Sentinel.")
     
 
 if __name__ == '__main__':
