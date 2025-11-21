@@ -95,7 +95,7 @@ def close_file(args):
     try:
         args.file.close()
     except Exception as e:
-        pass
+        print(f"ERROR: {e}")
     if getattr(args, "output", None):
         try:
             args.output.close()
