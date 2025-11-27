@@ -32,7 +32,7 @@ def parse_args():
                         help="Write to file")
     parser.add_argument("-m",
                         "--mode", 
-                        choices={"print", "live", "file"},
+                        choices=["print", "live", "file"],
                         help="",
                         default="file")
     
@@ -43,9 +43,7 @@ def start_sentinel(args):
     try:
           match args.mode:
                 case "print":
-                    sentinel_print_mode()
-                    print("STARTING: Running Sentinel in PRINT mode....")
-                    time.sleep(2)
+                    sentinel_print_mode(args)
                 case "live":
                     sentinel_live_mode()
                 case "file":
@@ -54,6 +52,37 @@ def start_sentinel(args):
         print(f"ERROR: {e}")
 
 def sentinel_print_mode(args):
+    print("STARTING: Running Sentinel in PRINT mode....")
+    time.sleep(2)
+    keyword_list = read_log_file(args)
+
+    logged_status = True
+
+    # get line number from list 
+    try:
+
+        # format keyword_list to make it loopable
+        space_list = [word.split(" ") for word in keyword_list]
+        print(space_list) # 3 lists ?
+        numbers = []
+        for n in space_list:
+            if isinstance(n, int):
+                numbers.append(n)
+        print(numbers)
+        '''
+        # format the list
+        # LINE NO: 22 Keyword: tracks, system ... Severity: Medium : Logged: Yes
+        '''
+        #print(f"Line: {number} --- Keywords Detected: {keyword} --- Severity: {severity} --- Logged: {logged_status}")
+        # loop to print to console
+        #print(keyword_list)
+
+    except FileNotFoundError:
+        print(f"ERROR: File {args.file} not found")
+    except Exception as e:
+        print(f"ERROR: {e}")
+    return keyword_list
+
     pass   
 
 def sentinel_live_mode(args):
@@ -135,11 +164,10 @@ def make_log_stream():
     formatter = logging.formatter("%{levelname}s:%{name}s:%{message}s")
     stream_handler.setFormatter(formattter)
     logger.addHandler(stream_handler)
-
+ 
 def main():
     args = parse_args() ## parses args 
-    file_logger = make_log_file()
-    stream_logger = stream_logger()
+    #file_logger = make_log_file() # prevent log file creation on every run
     file_logger.info("Started Sentinel.")
     start_sentinel(args) ## checks mode 
     file_logger.info("Shutting Sentinel.")
