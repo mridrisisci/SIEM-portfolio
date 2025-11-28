@@ -1,0 +1,13 @@
+#ignore test files 
+alerts.txt
+test_file.txt
+
+__pycache__/
+*.log
+.env
+.vscode/
+.DS_Store
+.idea/
+*.pyc
+logs/
+*.txt
