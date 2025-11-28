@@ -1,0 +1,9 @@
+
+# socket functions
+
+s.connect -> initiates 3 way handshake by establishing a connection
+s.bind -> reserves a given ip/port marking it ready for connections
+s.listen -> makes a socket ready to recieve connections
+s.accept -> waits for incoming connections, returns new socket + address
+s.send -> transmits data in bytes through a connected sockedt
+s.recv -> reads data and returns data in bytes 
