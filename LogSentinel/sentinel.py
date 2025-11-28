@@ -45,7 +45,7 @@ def start_sentinel(args):
                 case "print":
                     sentinel_print_mode(args)
                 case "live":
-                    sentinel_live_mode()
+                    sentinel_live_mode(args)
                 case "file":
                     sentinel_file_mode(args)
     except Exception as e:
@@ -60,23 +60,26 @@ def sentinel_print_mode(args):
 
     # get line number from list 
     try:
+        print("original list", keyword_list)
+        keywords = [k.strip() for k in args.keywords.split(";")]
+        for k in keyword_list: # K looks like: "Line: 1 : line system is 0wned"
+            parts = k.split(":") # parts -> ["Line", " 1 " ", " line system is 0wned]
 
-        # format keyword_list to make it loopable
-        space_list = [word.split(" ") for word in keyword_list]
-        print(space_list) # 3 lists ?
-        numbers = []
-        for n in space_list:
-            if isinstance(n, int):
-                numbers.append(n)
-        print(numbers)
-        '''
-        # format the list
-        # LINE NO: 22 Keyword: tracks, system ... Severity: Medium : Logged: Yes
-        '''
-        #print(f"Line: {number} --- Keywords Detected: {keyword} --- Severity: {severity} --- Logged: {logged_status}")
-        # loop to print to console
-        #print(keyword_list)
+            if len(parts) >= 3:
+                line_num_str = parts[1].strip()
+                line_txt = parts[2].strip()
 
+                try:
+                    line_num = int(line_num_str)
+                except ValueError:
+                    line_num = line_num_str
+                
+                print(
+                    f"Line: {line_num} ---"
+                    f"Keyword detected: {', '.join(keywords)} --- "
+                    f"Severity MEDIUM --- "
+                    f"Logged: {logged_status}" 
+                )
     except FileNotFoundError:
         print(f"ERROR: File {args.file} not found")
     except Exception as e:
@@ -167,7 +170,7 @@ def make_log_stream():
  
 def main():
     args = parse_args() ## parses args 
-    #file_logger = make_log_file() # prevent log file creation on every run
+    file_logger = make_log_file() # prevent log file creation on every run
     file_logger.info("Started Sentinel.")
     start_sentinel(args) ## checks mode 
     file_logger.info("Shutting Sentinel.")
