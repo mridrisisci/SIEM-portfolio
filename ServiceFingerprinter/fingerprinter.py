@@ -1,23 +1,17 @@
-import socket, argparse 
+import socket, argparse, os 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="")
+    parser = argparse.ArgumentParser(description="simple fingerprinting service. grab info on your target")
 
     # force ip/port 
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-t",
+    parser.add_argument("-t",
                         "--target",
-                        help="target to scan",
-                        type=int)
-    group.add_argument("-p",
+                        help="target to scan")
+    parser.add_argument("-p",
                         "--port",
                         help="port to scan",
                         type=int)
-    
 
-    parser.add_argument("-h",
-                        help=""
-                        )
     parser.add_argument("-v",
                         "--verbose",
                         help="verbose info")
@@ -25,15 +19,18 @@ def parse_args():
     return parser.parse_args()
     
 
-def create_socket(ip,port):
+def create_socket(args):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # family - type
-
+    ip = args.target
+    port = args.port
     try:
-     s.connect(ip,port)
+     s.connect((ip,port))
 
      #banner grabbing
      banner = s.recv(1024).decode().strip()
      print(f"Banner: {ip}:{port} -> {banner}")   
+     data = s.recv(10024).decode().strip()
+     return data
     except (OSError, socket.error) as e:
        print(f"ERROR: {e}")
     else:
@@ -41,15 +38,39 @@ def create_socket(ip,port):
     finally:
        s.close()
 
-def identify_service(response_data):
-   '''
-   takes the banner/probe response
 
-    loops through SIGNATURES
+def identify_service(args, response_data):
+   
+    response_data = create_socket(args.target,args.port)
+    SIGNATURES = {
+    "Apache": ["Apache", "Server: Apache"],
+    "nginx": ["nginx"],
+    "OpenSSH": ["SSH-"],
+    "FTP": ["220", "FileZilla"],
+    "SMTP": ["ESMTP", "SMTP"],
+    }
+    try: 
+      for service_name, sig_list in SIGNATURES.items():
+         if response_data in sig_list:
+            print(f"Found best matching signature: {service_name}")
+    except Error as e:
+      print(f"ERROR: {e}")
+   
 
-    returns best match
-   '''
-   pass
+
+    '''
+    takes the banner/probe response
+
+     loops through SIGNATURES
+
+     returns best match
+    '''
+   
+def start_fingerprinter(args):
+   try:
+      identify_service(args)
+   except Error as e:
+      print(f"ERROR: {e}")
 
 def probe_service(ip,port):
    '''
@@ -118,6 +139,7 @@ def save_results(result, filepath):
 
 def main():
     args = parse_args()
+    start_fingerprinter(args)
 
 if __name__ == "__main__":
     main()
